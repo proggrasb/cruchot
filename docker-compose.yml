@@ -1,0 +1,75 @@
+version: '3.9'
+
+services:
+    nginx:
+        build:
+            context: ./docker/nginx
+            args:
+                PROJECT_NAME: cruchot
+                WORKDIR_SITE: "/var/www/cruchot"
+                FASTCGI_READ_TIMEOUT: 600
+        container_name: cruchot-server
+        restart: always
+        volumes:
+            - ./:/var/www/cruchot/
+        ports:
+            - '9091:80'
+        depends_on:
+            - php
+
+    php:
+        build:
+            context: ./docker/php
+            args:
+                WORKDIR_SITE: "/var/www/cruchot"
+                PHP_MAX_EXECUTION_TIME: 600
+                XDEBUG_REMOTE_HOST: 192.168.1.33
+        container_name: cruchot-php
+        restart: always
+        volumes:
+            - ./:/var/www/cruchot/
+
+    redis:
+        image: redis
+        container_name: cruchot-redis
+        restart: always
+        sysctls:
+            - net.core.somaxconn=1024
+        command: redis-server --requirepass Pwd12Cruchot!
+        volumes:
+            - cruchot-redis-data:/data
+        ports:
+            - "7010:6379"
+
+    rabbitmq:
+        container_name: cruchot-rabbitmq
+        image: rabbitmq:3.9.21-management
+        restart: always
+        environment:
+            RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+            RABBITMQ_DEFAULT_USER: "rabbitmq"
+            RABBITMQ_DEFAULT_PASS: "123456789"
+            RABBITMQ_DEFAULT_VHOST: "/"
+        volumes:
+            - cruchot-rabbitmq-data:/var/lib/rabbitmq
+        ports:
+            - "16000:15672"
+            - "6000:5672"
+
+    db:
+      image: postgres:latest
+      environment:
+        POSTGRES_USER: "cruchot"
+        POSTGRES_PASSWORD: "cruchot"
+        POSTGRES_DB: "cruchot"
+      container_name: cruchot-db
+      restart: always
+      volumes:
+        - postgres-cruchot-data:/var/lib/postgresql/data:rw
+      ports:
+        - "4020:5432"
+
+volumes:
+    cruchot-redis-data:
+    cruchot-rabbitmq-data:
+    postgres-cruchot-data:

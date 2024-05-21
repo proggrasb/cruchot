@@ -32,7 +32,7 @@ class GetCurrencyRatesCommand extends Command
         $this->currencyService = $currencyService;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln("Checking currency list...");
         $this->currencyService->prepareCurrencyTable();

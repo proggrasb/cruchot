@@ -104,14 +104,6 @@ class CurrencyService
             : $this->currencyRateCalculator->calculateCrossRate($currencyRateData, $currency, $baseCurrency);
     }
 
-    public function getOnDateRate(string $currency, ?string $baseCurrency = null): ?CalculatedRate
-    {
-        $defaultCurrency = $this->parameterBag->get('currency.default.symbolCode');
-        if ($baseCurrency === $defaultCurrency) {
-            $baseCurrency = null;
-        }
-    }
-
     /**
      * @return void
      */
